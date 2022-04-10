@@ -9,6 +9,14 @@ struct Ticket {
     char time[6];
 };
 
+struct datos{
+    string dia;
+    int ticket1;
+    int ticket2;
+    string hora1;
+    string hora2;
+};
+
 void lectura_text(){
     ifstream file;
     file.open("casoT1/servicios.txt");
@@ -25,7 +33,7 @@ void lectura_text(){
         if (num>1){
             cout << "numero del txt: "<<num<<endl;
             break;
-        };
+        }
         else{
             return;
         }
