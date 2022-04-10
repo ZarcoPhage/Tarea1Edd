@@ -9,6 +9,38 @@ struct Ticket {
     char time[6];
 };
 
+void lectura_text(){
+    ifstream file;
+    file.open("casoT1/servicios.txt");
+    if (!file.is_open()){
+        return;
+    }
+    string stringLine;
+    int num;
+
+    while(getline(file, stringLine)){
+        cout<< stringLine<<endl;
+        num = stoi(stringLine);
+
+        if (num>1){
+            cout << "numero del txt: "<<num<<endl;
+            break;
+        };
+        else{
+            return;
+        }
+    }
+    cout<<"nuevo ciclo"<<endl;
+    datos* p = new datos[num];
+    string* p2 = new string[num];
+    while (getline(file, stringLine)){
+        cout<< stringLine << endl;
+
+    }
+    delete[] p;
+    file.close();
+};
+
 void translate_binary(){
     Ticket tickets;
     int totalTickets;
