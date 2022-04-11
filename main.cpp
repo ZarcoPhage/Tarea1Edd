@@ -11,9 +11,8 @@ struct Ticket {
 
 struct datos{
     string nombreServicio;
-    string dia;
-    int ticket1;
-    int ticket2;
+    int ticketDiario;
+    int ticketMensual;
     string hora1;
     string hora2;
 };
@@ -47,9 +46,8 @@ datos* lectura_text(){
     int i = 0;
     while (!file.eof()){
         file >> p[i].nombreServicio;
-        file >> p[i].dia;
-        file >> p[i].ticket1;
-        file >> p[i].ticket2;
+        file >> p[i].ticketDiario;
+        file >> p[i].ticketMensual;
         file >> p[i].hora1;
         file >> p[i].hora2;
         i++;
@@ -59,8 +57,8 @@ datos* lectura_text(){
     return p;
 };
 
-/*
-Ticket* leer_bin(){
+
+Ticket* leer_bin(int &number){
     ifstream file;
     Ticket* null = new Ticket;
     file.open("casoT1/tickets.dat", ios::binary);
@@ -68,17 +66,13 @@ Ticket* leer_bin(){
         cout<<"file damaged"<<endl;
         return null;
     }
-    int num;
-    file.read((char*) &num, sizeof(int));
-    cout<<num<<endl;
-    Ticket* point = new Ticket[num];
-    while(file.read((char*) point, sizeof(Ticket)));
-    cout<< point[0].rut_funcionario<<endl;
-
+    file.read((char*) &number, sizeof(int));
+    cout<<number<<endl;
+    Ticket* p = new Ticket[number];
+    file.read((char*) p, sizeof(Ticket)*number);
     file.close();
-    return point;
+    return p;
 }
-*/
 
 void translate_binary(){
     Ticket tickets;
@@ -110,16 +104,25 @@ void translate_binary(){
 }
 
 int main(){
-    translate_binary();
+    int num = 0;
     datos* datosTxt = lectura_text();
+    Ticket* p = leer_bin(num);
 
-    for (int i = 0; i<int(sizeof(datosTxt)); i++){
+    for (int i = 0; i<int(sizeof(datosTxt)-2); i++){
         cout<<datosTxt[i].nombreServicio<<endl;
-        cout<<datosTxt[i].dia<<endl;
+        cout<<datosTxt[i].ticketDiario<<endl;
+        cout<<datosTxt[i].ticketMensual<<endl;
+        cout<<datosTxt[i].hora1<<endl;
+        cout<<datosTxt[i].hora2<<endl;
     }
 
-    
-    //delete [] datosBin;
+    for (int i = 0; i < num; i++){
+        cout<<i<<endl;
+        cout<< p[i].rut_funcionario<<endl;
+        cout<< p[i].day_of_month<<endl;
+        cout<< p[i].time << endl;
+    }
+    delete [] p;
     delete [] datosTxt;
 
     return 0;
