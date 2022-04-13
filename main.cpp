@@ -18,17 +18,16 @@ struct datos{
 };
 
 struct persona {
-    char rut[10];
+    string rut;
     int tickets_val;
-    int tickets_inval;
+    int tickets_Total;
 };
 datos* lectura_text(int &number){
     ifstream file;
     file.open("casoT1/servicios.txt");
-    datos* null = new datos;
     if (!file.is_open()){
         cout<<"file damaged"<<endl;
-        return null;
+        return NULL;
     }
     string stringLine;
 
@@ -41,7 +40,7 @@ datos* lectura_text(int &number){
             break;
         }
         else{
-            return null;
+            return NULL;
         }
     }
     cout<<"nuevo ciclo"<<endl;
@@ -64,11 +63,10 @@ datos* lectura_text(int &number){
 
 Ticket* leer_bin(int &number){
     ifstream file;
-    Ticket* null = new Ticket;
     file.open("casoT1/tickets.dat", ios::binary);
     if(!file.is_open()){
         cout<<"file damaged"<<endl;
-        return null;
+        return NULL;
     }
     file.read((char*) &number, sizeof(int));
     cout<<number<<endl;
@@ -108,9 +106,7 @@ void heapSort(Ticket* arregloOriginal, int* arregloAux, int tamanoArreglo){
     };
 };
 
-int contarTicketsPersona(Ticket* datosBinario, int numBin){
-    int contadorPersonas = 0;
-    bool encontrado;
+void ordenarTicketsPersona(Ticket* datosBinario, int numBin){
 
     int* toSort = new int[numBin];
     string rut;
@@ -126,29 +122,77 @@ int contarTicketsPersona(Ticket* datosBinario, int numBin){
     heapSort(datosBinario, toSort, numBin);
 
     for (int i = 0; i<numBin; i++){
-        cout<<toSort[i]<<endl;
-        cout<<datosBinario[i].rut_funcionario<<endl;
+        cout<<datosBinario[i].rut_funcionario<<"\n";
     };
-    cout<<contadorPersonas<<endl;
-    
-    return contadorPersonas;
+
+    delete [] toSort;
 };
 
+persona* personasUnicas(Ticket* datosBinary, int numBin, int &cantidadPersonas){
+    string rutActual;
+    for(int i = 1; i<numBin; i++){
+        rutActual = datosBinary[i].rut_funcionario;
+        if (rutActual != string(datosBinary[i-1].rut_funcionario)){
+            cantidadPersonas++;
+        }
+    }
+    persona* personas = new persona[cantidadPersonas];
+
+    personas[0].rut = string(datosBinary[0].rut_funcionario);
+
+    int posPersonas = 1;
+
+    for(int i = 1; i<numBin; i++){
+        rutActual = datosBinary[i].rut_funcionario;
+        if (rutActual != string(datosBinary[i-1].rut_funcionario)){
+            personas[posPersonas].rut = string(datosBinary[i].rut_funcionario);
+            posPersonas++;
+        }
+    }
+    cout << endl;
+    for (int j = 0; j<cantidadPersonas; j++){
+        cout<<personas[j].rut<<endl;
+    }
+
+    return personas;
+}
+
+void TicketsTotalesPersonas (persona* personasUnicas, Ticket* datosBinario, int cantidadPersonas, int numBin){
+    string rutActual, rutAContar;
+    int contadorTicketsPersona;
+    for (int i = 0; i<cantidadPersonas; i++){
+        rutAContar = personasUnicas[i].rut;
+        contadorTicketsPersona = 0;
+        for (int j = 0; j<numBin; j++){
+            rutActual = string(datosBinario[j].rut_funcionario);
+            if (rutAContar == rutActual){
+                contadorTicketsPersona++;
+            }
+        }
+        personasUnicas[i].tickets_Total = contadorTicketsPersona;
+    }
+
+}
 
 int main(){
-    int numBin,numTxt = 0;
-    int ticketsPersona;
+    int numBin,numTxt= 0; 
+    int cantidadPersonas = 1;   
     datos* datosTxt = lectura_text(numTxt);
-    Ticket* p = leer_bin(numBin);
+    Ticket* datosBinary = leer_bin(numBin);
 
-    for(int i = 0; i<numBin; i++){
-        cout<<p[i].rut_funcionario<<endl;
+    ordenarTicketsPersona(datosBinary, numBin);
+
+    persona* personas = personasUnicas(datosBinary, numBin, cantidadPersonas);
+
+    TicketsTotalesPersonas(personas, datosBinary, cantidadPersonas, numBin);
+
+    for(int i = 0; i<cantidadPersonas; i++){
+        cout<<personas[i].rut<<endl;
+        cout<<personas[i].tickets_Total<<endl;
     }
-    ticketsPersona = contarTicketsPersona(p, numBin);
-
     //int ticketsInválidosHorario = ticketsFueraHorario(rut, p, numBin, datosTxt, numTxt);
 
-    delete [] p;
+    delete [] datosBinary;
     delete [] datosTxt;
 
     return 0;
