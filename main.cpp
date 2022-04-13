@@ -17,7 +17,12 @@ struct datos{
     string hora2;
 };
 
-datos* lectura_text(){
+struct persona {
+    char rut[10];
+    int tickets_val;
+    int tickets_inval;
+};
+datos* lectura_text(int &number){
     ifstream file;
     file.open("casoT1/servicios.txt");
     datos* null = new datos;
@@ -26,14 +31,13 @@ datos* lectura_text(){
         return null;
     }
     string stringLine;
-    int num;
 
     while(getline(file, stringLine)){
         //cout<< stringLine<<endl;
-        num = stoi(stringLine);
+        number = stoi(stringLine);
 
-        if (num>1){
-            cout << "numero del txt: "<<num<<endl;
+        if (number>1){
+            cout << "numero del txt: "<<number<<endl;
             break;
         }
         else{
@@ -41,7 +45,7 @@ datos* lectura_text(){
         }
     }
     cout<<"nuevo ciclo"<<endl;
-    datos* p = new datos[num];
+    datos* p = new datos[number];
     //string* p2 = new string[num];
     int i = 0;
     while (!file.eof()){
@@ -74,54 +78,76 @@ Ticket* leer_bin(int &number){
     return p;
 }
 
-void translate_binary(){
-    Ticket tickets;
-    int totalTickets;
-    ifstream binaryFile;
-    ofstream textFile;
-    binaryFile.open("casoT1/tickets.dat", ios::binary);
-    if (!binaryFile.is_open()){
-        cout<<"Binary file is damaged or missing"<<endl;
-        return;
-    }; 
-    textFile.open("casoT1/textTickets.txt");
-    if (!textFile.is_open()){
-        cout<<"New file is damaged"<<endl;
-        return;
+void heapy(Ticket* arregloOriginalHeap, int* arregloAuxHeap, int tamanoArreglo, int i){
+    int mayorLongitud = i; 
+    int izq = 2*i + 1; 
+    int der = 2*i + 2;
+
+    if (izq<tamanoArreglo && arregloAuxHeap[izq] > arregloAuxHeap[mayorLongitud]){
+        mayorLongitud = izq;
+    };
+    if (der<tamanoArreglo && arregloAuxHeap[der]>arregloAuxHeap[mayorLongitud]){
+        mayorLongitud = der;
+    };
+    if (mayorLongitud != i){
+        swap(arregloAuxHeap[i],arregloAuxHeap[mayorLongitud]);
+        swap(arregloOriginalHeap[i], arregloOriginalHeap[mayorLongitud]);
+        heapy(arregloOriginalHeap, arregloAuxHeap, tamanoArreglo, mayorLongitud);
     }
+}   
 
-    binaryFile.read((char*) &totalTickets, sizeof(int)); //pointer to memory address where the value will be stored, and byte size of the value
-    textFile << totalTickets << endl;
-    binaryFile.seekg(1*sizeof(int)); //repositioning cursor inside the file
-
-    while (binaryFile.read((char*) &tickets, sizeof(Ticket))){
-        textFile << tickets.rut_funcionario << " " <<tickets.day_of_month<< " " << tickets.time << endl;
-
+void heapSort(Ticket* arregloOriginal, int* arregloAux, int tamanoArreglo){
+    for (int i = tamanoArreglo / 2 - 1; i >= 0; i--){ //crea un heap, reestructurando el arreglo
+        heapy(arregloOriginal, arregloAux, tamanoArreglo, i);
     };
 
-    binaryFile.close();
-    textFile.close();
-}
+    for (int i = tamanoArreglo - 1; i > 0; i--){ //extrae los elementos uno a uno del heap
+        swap(arregloAux[0],arregloAux[i]);
+        swap(arregloOriginal[0], arregloOriginal[i]);
+        heapy(arregloOriginal, arregloAux, i, 0);
+    };
+};
+
+int contarTicketsPersona(Ticket* datosBinario, int numBin){
+    int contadorPersonas = 0;
+    bool encontrado;
+
+    int* toSort = new int[numBin];
+    string rut;
+    
+    for (int i = 0; i<numBin; i++){ //crea un arreglo auxiliar que ayudará a ordenar los ruts
+        cout<<"rut: "<<datosBinario[i].rut_funcionario<<endl;
+        rut = string(datosBinario[i].rut_funcionario);
+        cout<<rut<<endl;
+        toSort[i] = stoi(rut.substr(0,8));
+        cout<<toSort[i]<<endl;
+    }
+
+    heapSort(datosBinario, toSort, numBin);
+
+    for (int i = 0; i<numBin; i++){
+        cout<<toSort[i]<<endl;
+        cout<<datosBinario[i].rut_funcionario<<endl;
+    };
+    cout<<contadorPersonas<<endl;
+    
+    return contadorPersonas;
+};
+
 
 int main(){
-    int num = 0;
-    datos* datosTxt = lectura_text();
-    Ticket* p = leer_bin(num);
+    int numBin,numTxt = 0;
+    int ticketsPersona;
+    datos* datosTxt = lectura_text(numTxt);
+    Ticket* p = leer_bin(numBin);
 
-    for (int i = 0; i<int(sizeof(datosTxt)-2); i++){
-        cout<<datosTxt[i].nombreServicio<<endl;
-        cout<<datosTxt[i].ticketDiario<<endl;
-        cout<<datosTxt[i].ticketMensual<<endl;
-        cout<<datosTxt[i].hora1<<endl;
-        cout<<datosTxt[i].hora2<<endl;
+    for(int i = 0; i<numBin; i++){
+        cout<<p[i].rut_funcionario<<endl;
     }
+    ticketsPersona = contarTicketsPersona(p, numBin);
 
-    for (int i = 0; i < num; i++){
-        cout<<i<<endl;
-        cout<< p[i].rut_funcionario<<endl;
-        cout<< p[i].day_of_month<<endl;
-        cout<< p[i].time << endl;
-    }
+    //int ticketsInválidosHorario = ticketsFueraHorario(rut, p, numBin, datosTxt, numTxt);
+
     delete [] p;
     delete [] datosTxt;
 
