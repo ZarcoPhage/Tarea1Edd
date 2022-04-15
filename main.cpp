@@ -32,7 +32,6 @@ datos* lectura_text(int &number){
     string stringLine;
 
     while(getline(file, stringLine)){
-        //cout<< stringLine<<endl;
         number = stoi(stringLine);
 
         if (number>1){
@@ -43,9 +42,8 @@ datos* lectura_text(int &number){
             return NULL;
         }
     }
-    cout<<"nuevo ciclo"<<endl;
+
     datos* p = new datos[number];
-    //string* p2 = new string[num];
     int i = 0;
     while (!file.eof()){
         file >> p[i].nombreServicio;
@@ -69,7 +67,6 @@ Ticket* leer_bin(int &number){
         return NULL;
     }
     file.read((char*) &number, sizeof(int));
-    cout<<number<<endl;
     Ticket* p = new Ticket[number];
     file.read((char*) p, sizeof(Ticket)*number);
     file.close();
@@ -112,18 +109,11 @@ void ordenarTicketsPersona(Ticket* datosBinario, int numBin){
     string rut;
     
     for (int i = 0; i<numBin; i++){ //crea un arreglo auxiliar que ayudará a ordenar los ruts
-        cout<<"rut: "<<datosBinario[i].rut_funcionario<<endl;
         rut = string(datosBinario[i].rut_funcionario);
-        cout<<rut<<endl;
         toSort[i] = stoi(rut.substr(0,8));
-        cout<<toSort[i]<<endl;
     }
 
     heapSort(datosBinario, toSort, numBin);
-
-    for (int i = 0; i<numBin; i++){
-        cout<<datosBinario[i].rut_funcionario<<"\n";
-    };
 
     delete [] toSort;
 };
@@ -149,11 +139,6 @@ persona* personasUnicas(Ticket* datosBinary, int numBin, int &cantidadPersonas){
             posPersonas++;
         }
     }
-    cout << endl;
-    for (int j = 0; j<cantidadPersonas; j++){
-        cout<<personas[j].rut<<endl;
-    }
-
     return personas;
 }
 
@@ -173,94 +158,93 @@ void TicketsTotalesPersonas (persona* personasUnicas, Ticket* datosBinario, int 
     }
 
 }
-bool verificarHora (int horaTicket, int minTicket, int horaInicioServ, int minInicioServ, int horaFinServ, int minFinServ){
-    if (horaTicket == horaInicioServ){ //si la hora es igual, comparamos minutos
-        if(minTicket >= minInicioServ){
-            if (horaTicket == horaFinServ){ //misma logica pero para el final del servicio
-                if (minTicket <= minFinServ){
-                    return true;
-                    }
-            }
-            if (horaTicket < horaFinServ){
-                return true;
-                }
-        }
-    }
-    else if (horaTicket > horaInicioServ){
-        if (horaTicket == horaFinServ){
-            if (minTicket <= minFinServ){
-                return true;
-            }
-        }
-        if (horaTicket < horaFinServ){
+
+bool verificarValHora(int horaTicket, int minTicket, int horaInicioServ, int minInicioServ, int horaFinServ, int minFinServ){
+    if (horaTicket == horaInicioServ){ //si horas son iguales, comparamos minutos
+        if (minTicket >= minInicioServ){ //si el ticket se emitió posterior a la hora de inicio, comparar si está dentro del rango de horas de fin 
             return true;
         }
     }
-    else{ 
-        return false;
+    if (horaTicket > horaInicioServ){   //si el ticket se emitió posterior a la hora de inicio, comparar si está dentro del rango de horas de fin
+        if (horaTicket == horaFinServ){ //si las horas son iguales, comparamos minutos
+            if (minTicket <= minFinServ){ //si el ticket se emitió antes de la hora del fin del servicio
+                return true;
+            }
+        }
+        if (horaTicket < horaFinServ){ //si el ticket se emitió antes de la hora de fin de servicio
+            return true;
+        }
     }
     return false;
 }
-
-
 void ticketsValidos (persona* personasUnicas, Ticket* datosBinario, datos* datosServicios, int cantidadPersonas, int numBin, int numTxt){
-    int contadorLimDiario, contadorLimMensual, limDiario, limMensual, ticketsValidosTotales, horaInicioServ, minInicioServ, horaFinServ, minFinServ, horaTicket, minTicket;
-    string rutAnalizar, servicioAnalizar, strHoraInicio, strHoraFin, strHoraTicket;
-    for(int i = 0; i<cantidadPersonas; i++){
-        rutAnalizar = personasUnicas[i].rut; //lee cada persona y entra su rut al ciclo que analizará los tickets de aquel rut
-        cout<<"analizando rut: "<<rutAnalizar<<endl;
-        ticketsValidosTotales = 0;
-        for(int j = 0; j<numBin; j++){
-            cout<<"analizando ticket nro: "<<j+1<<" correspondiente a rut: "<< datosBinario[j].rut_funcionario<<endl;
-            if (rutAnalizar == datosBinario[j].rut_funcionario){ //toma los tickets del rut a analizar
-                contadorLimMensual = 0; 
-                for (int dias = 1; dias<=31; dias++){ //analiza los tickets del mes
-                    cout<<"dia "<<dias<<" del mes"<<endl;
-                    if (datosBinario[j].day_of_month == dias){ //analiza un dia especifico del mes
-                        contadorLimDiario = 0;
-                        for(int l = 0; l<numTxt; l++){
-                            servicioAnalizar = datosServicios[l].nombreServicio; 
-                            strHoraInicio = datosServicios[l].hora1; //de aqui hacia abajo es solo string handling para sacar las horas y minutos y comparar
-                            strHoraFin = datosServicios[l].hora2;
-                            strHoraTicket = string(datosBinario[j].time);
-                            horaInicioServ = stoi(strHoraInicio.substr(0,2));
-                            minInicioServ = stoi(strHoraInicio.substr(3,5));
-                            horaFinServ = stoi(strHoraFin.substr(0,2));
-                            minFinServ = stoi(strHoraFin.substr(3,5));
-                            horaTicket = stoi(strHoraTicket.substr(0,2));
-                            minTicket = stoi(strHoraTicket.substr(3,5));
-                            limDiario = datosServicios[l].ticketDiario;
-                            limMensual = datosServicios[l].ticketMensual;
-                            if (ticketsValidosTotales <= 100){
-                                cout<<"entra al primero"<<endl;
-                                if (horaInicioServ > horaFinServ){
-                                    cout<<"entra al segundo"<<endl;
-                                    if (verificarHora(horaTicket, minTicket, horaInicioServ, minInicioServ, horaFinServ, minFinServ)){
-                                        ticketsValidosTotales++;
-                                        cout<<"SISISISISISI"<<endl;
-                                    }
-                                if (horaInicioServ < horaFinServ){
-                                    cout<<"entra al segundo"<<endl;
-                                    if (verificarHora(horaTicket, minTicket, horaInicioServ, minInicioServ, horaFinServ, minFinServ)){
-                                        ticketsValidosTotales++;
-                                        cout<<"SISISISI"<<endl;
-                                    }
-                                }
-                            }                            
+    cout<<"----FUNCION TICKETS VALIDOS----"<<endl;
+    int horaTicket, minTicket, horaInicioServ, minInicioServ, horaFinServ, minFinServ, contadorTicketsVal;
+    string rutPersonaUnica, tiempoTicket, tiempoInicioServ, tiempoFinServ;
+    for(int posPers = 0; posPers < cantidadPersonas; posPers++){
+        cout<<"persona unica numero "<<posPers+1<<": "<<personasUnicas[posPers].rut<<endl;
+        rutPersonaUnica = personasUnicas[posPers].rut;
+        cout<<"TICKETS DE ESTA PERSONA:"<<endl;
+        contadorTicketsVal = 0;
+        for(int posTicketsBin = 0; posTicketsBin<numBin; posTicketsBin++){
+            if (rutPersonaUnica == string(datosBinario[posTicketsBin].rut_funcionario)){
+                cout<<datosBinario[posTicketsBin].rut_funcionario<<endl;
+                //cout<<datosBinario[posTicketsBin].day_of_month<<endl;
+                tiempoTicket = string(datosBinario[posTicketsBin].time);
+                cout<<tiempoTicket<<endl;
+                horaTicket = stoi(tiempoTicket.substr(0,2));
+                minTicket = stoi(tiempoTicket.substr(3,5));
+                cout<<horaTicket<<endl;
+                cout<<minTicket<<endl;
+                for (int posServ = 0; posServ<numTxt; posServ++){
+                    cout<<datosServicios[posServ].nombreServicio<<endl;
+
+                    tiempoInicioServ = datosServicios[posServ].hora1;
+                    tiempoFinServ = datosServicios[posServ].hora2;
+
+                    horaInicioServ = stoi(tiempoInicioServ.substr(0,2));
+                    cout<<"HORA INICIO: "<<horaInicioServ<<endl;
+                    minInicioServ = stoi(tiempoInicioServ.substr(3,5));
+                    cout<<"MIN INICIO: "<<minInicioServ<<endl;
+
+                    horaFinServ = stoi(tiempoFinServ.substr(0,2));
+                    cout<<"HORA FIN: "<<horaFinServ<<endl;
+                    minFinServ = stoi(tiempoFinServ.substr(3,5));
+                    cout<<"MIN FIN: "<<minFinServ<<endl;
+
+                    if (horaInicioServ > horaFinServ){
+                        cout<<"servicio que pasa la medianoche"<<endl;
+                        if(verificarValHora(horaTicket, minTicket, horaInicioServ, minInicioServ, horaFinServ, minFinServ)){
+                            cout<<"**VALIDO**"<<endl;
+                            contadorTicketsVal++;
+                            break;
                         }
-                    } 
-                    
                     }
+                    else if (horaInicioServ < horaFinServ){
+                        cout<<"servicio normal"<<endl;
+                        if (verificarValHora(horaTicket, minTicket, horaInicioServ, minInicioServ, horaFinServ, minFinServ)){
+                            cout<<"**VALIDO**"<<endl;
+                            contadorTicketsVal++;
+                            break;
+                        }
+                    }
+
                 }
             }
         }
-    personasUnicas[i].tickets_val = ticketsValidosTotales;
-    cout<<"PERSONITA: "<<personasUnicas[i].rut<<endl<<"sus tickets: "<<personasUnicas[i].tickets_val<<endl;
-    }}
+        personasUnicas[posPers].tickets_val = contadorTicketsVal;
+    }
 
+    for (int i = 0; i<cantidadPersonas; i++){
+        cout<<personasUnicas[i].rut<<endl;
+        cout<<personasUnicas[i].tickets_val<<endl;
+        cout<<personasUnicas[i].tickets_Total<<endl;
+    }
+    cout<<"----FIN FUNCION TICKETS VALIDOS----"<<endl;
+}
 
 int main(){
-    int numBin,numTxt= 0; 
+    int numBin,numTxt= 0;
     int cantidadPersonas = 1;   
     datos* datosTxt = lectura_text(numTxt);
     Ticket* datosBinary = leer_bin(numBin);
@@ -271,12 +255,8 @@ int main(){
 
     TicketsTotalesPersonas(personas, datosBinary, cantidadPersonas, numBin);
 
-    for(int i = 0; i<cantidadPersonas; i++){
-        cout<<personas[i].rut<<endl;
-        cout<<personas[i].tickets_Total<<endl;
-    }
-
     ticketsValidos(personas, datosBinary, datosTxt, cantidadPersonas, numBin, numTxt);
+
     delete [] datosBinary;
     delete [] datosTxt;
 
