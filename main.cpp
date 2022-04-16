@@ -180,7 +180,7 @@ bool verificarValHora(int horaTicket, int minTicket, int horaInicioServ, int min
 
 void ticketsValidos (persona* personasUnicas, Ticket* datosBinario, datos* datosServicios, int cantidadPersonas, int numBin, int numTxt){
     //cout<<"----FUNCION TICKETS VALIDOS----"<<endl;
-    int horaTicket, minTicket, horaInicioServ, minInicioServ, horaFinServ, minFinServ, contadorTicketsVal;
+    int horaTicket, minTicket, horaInicioServ, minInicioServ, horaFinServ, minFinServ, contadorTicketsVal, contLimMens, limMensual, contLimDiario, limDiario, contInval;
     string rutPersonaUnica, tiempoTicket, tiempoInicioServ, tiempoFinServ;
     for(int posPers = 0; posPers < cantidadPersonas; posPers++){
         //cout<<"persona unica numero "<<posPers+1<<": "<<personasUnicas[posPers].rut<<endl;
@@ -199,7 +199,6 @@ void ticketsValidos (persona* personasUnicas, Ticket* datosBinario, datos* datos
                 //cout<<minTicket<<endl;
                 for (int posServ = 0; posServ<numTxt; posServ++){
                     //cout<<datosServicios[posServ].nombreServicio<<endl;
-
                     tiempoInicioServ = datosServicios[posServ].hora1;
                     tiempoFinServ = datosServicios[posServ].hora2;
 
@@ -236,12 +235,74 @@ void ticketsValidos (persona* personasUnicas, Ticket* datosBinario, datos* datos
         personasUnicas[posPers].tickets_val = contadorTicketsVal;
     }
 
-    for (int i = 0; i<cantidadPersonas; i++){
-        //cout<<personasUnicas[i].rut<<endl;
-        //cout<<personasUnicas[i].tickets_val<<endl;
-        //cout<<personasUnicas[i].tickets_Total<<endl;
+    for (int posServ = 0; posServ<numTxt; posServ++){
+        cout<<"------------------"<<datosServicios[posServ].nombreServicio<<"-----------------"<<endl;
+
+        tiempoInicioServ = datosServicios[posServ].hora1;
+        tiempoFinServ = datosServicios[posServ].hora2;
+            
+        horaInicioServ = stoi(tiempoInicioServ.substr(0,2));
+        cout<<"HORA INICIO: "<<horaInicioServ<<endl;
+        minInicioServ = stoi(tiempoInicioServ.substr(3,5));
+        cout<<"MIN INICIO: "<<minInicioServ<<endl;
+
+        horaFinServ = stoi(tiempoFinServ.substr(0,2));
+        cout<<"HORA FIN: "<<horaFinServ<<endl;
+        minFinServ = stoi(tiempoFinServ.substr(3,5));
+        cout<<"MIN FIN: "<<minFinServ<<endl;
+            
+        limMensual = datosServicios[posServ].ticketMensual;
+        limDiario = datosServicios[posServ].ticketDiario;
+        for (int posPersonas = 0; posPersonas < cantidadPersonas; posPersonas++){
+            contLimMens = 0;
+            cout<<personasUnicas[posPersonas].rut<<endl;
+            contInval = 0;
+            for (int dia = 1; dia<=31;dia++){
+                contLimDiario = 0;
+                cout<<"dia numero "<<dia<<" del MES"<<endl;
+                for (int posTicketsBin = 0; posTicketsBin < numBin; posTicketsBin++){
+                    //cout<<datosBinario[posTicketsBin].rut_funcionario<<endl;
+                    //cout<<"dia del TICKET: "<<datosBinario[posTicketsBin].day_of_month<<endl;
+                    if (personasUnicas[posPersonas].rut == datosBinario[posTicketsBin].rut_funcionario && dia == datosBinario[posTicketsBin].day_of_month){
+                        tiempoTicket = datosBinario[posTicketsBin].time;
+                        cout<<"**RUT DE LA PERSONA:**"<<personasUnicas[posPersonas].rut<<endl;
+                        cout<<"**RUT DEL TICKET:**"<<datosBinario[posTicketsBin].rut_funcionario<<endl;
+                        cout<<"**TIEMPO DEL TICKET:**"<<tiempoTicket<<endl;
+                        horaTicket = stoi(tiempoTicket.substr(0,2));
+                        minTicket = stoi(tiempoTicket.substr(3,5));
+                        if (horaInicioServ > horaFinServ){
+                            if(verificarValHora(horaTicket, minTicket, horaInicioServ, minInicioServ, horaFinServ, minFinServ)){
+                                contLimDiario++;
+                                contLimMens++;
+                                if ((contLimDiario > limDiario) || (contLimMens > limMensual)){
+                                    contInval++;
+                                }
+                            }
+                        }
+                        else if (horaInicioServ < horaFinServ){
+                            if(verificarValHora(horaTicket, minTicket, horaInicioServ, minInicioServ, horaFinServ, minFinServ)){
+                                contLimDiario++;
+                                contLimMens++;
+                                if ((contLimDiario > limDiario) || (contLimMens > limMensual)){
+                                    contInval++;
+                                }
+                            }
+                        }
+                    }
+                  }
+            }
+            personasUnicas[posPersonas].tickets_val -= contInval;
+        }
     }
-    //cout<<"----FIN FUNCION TICKETS VALIDOS----"<<endl;
+
+    for (int i = 0; i<cantidadPersonas; i++){
+        cout<<personasUnicas[i].rut<<endl;
+        cout<<personasUnicas[i].tickets_val<<endl;
+        cout<<personasUnicas[i].tickets_Total<<endl;
+    }
+
+
+    cout<<"----FIN FUNCION TICKETS VALIDOS----"<<endl;
 }
 
 int main(){
