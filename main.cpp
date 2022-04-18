@@ -276,16 +276,19 @@ void TicketsTotalesPersonas (persona* personasUnicas, Ticket* datosBinario, int 
 bool verificarValHora(int horaTicket, int minTicket, int horaInicioServ, int minInicioServ, int horaFinServ, int minFinServ){
     if (horaTicket == horaInicioServ){ //si horas son iguales, comparamos minutos
         if (minTicket >= minInicioServ){ //si el ticket se emitió posterior a la hora de inicio, comparar si está dentro del rango de horas de fin 
+            //cout<<"VALIDO-----------------------------------------------------------------"<<endl;
             return true;
         }
     }
     if (horaTicket > horaInicioServ){   //si el ticket se emitió posterior a la hora de inicio, comparar si está dentro del rango de horas de fin
         if (horaTicket == horaFinServ){ //si las horas son iguales, comparamos minutos
             if (minTicket <= minFinServ){ //si el ticket se emitió antes de la hora del fin del servicio
+                //cout<<"VALIDO-----------------------------------------------------------------"<<endl;
                 return true;
             }
         }
         if (horaTicket < horaFinServ){ //si el ticket se emitió antes de la hora de fin de servicio
+            //cout<<"VALIDO-----------------------------------------------------------------"<<endl;
             return true;
         }
     }
@@ -306,51 +309,51 @@ bool verificarValHora(int horaTicket, int minTicket, int horaInicioServ, int min
 *       int numTxt : numero total de servicios que se ofrecen, numero entero rescatado del archivo de texto        
 *****/
 void ticketsValidos (persona* personasUnicas, Ticket* datosBinario, datos* datosServicios, int cantidadPersonas, int numBin, int numTxt){
-    //cout<<"----FUNCION TICKETS VALIDOS----"<<endl;
+    cout<<"----FUNCION TICKETS VALIDOS----"<<endl;
     int horaTicket, minTicket, horaInicioServ, minInicioServ, horaFinServ, minFinServ, contadorTicketsVal, contLimMens, limMensual, contLimDiario, limDiario, contInval;
     string rutPersonaUnica, tiempoTicket, tiempoInicioServ, tiempoFinServ;
     for(int posPers = 0; posPers < cantidadPersonas; posPers++){
-        //cout<<"persona unica numero "<<posPers+1<<": "<<personasUnicas[posPers].rut<<endl;
+        cout<<"persona unica numero "<<posPers+1<<": "<<personasUnicas[posPers].rut<<endl;
         rutPersonaUnica = personasUnicas[posPers].rut;
-        //cout<<"TICKETS DE ESTA PERSONA:"<<endl;
+        cout<<"TICKETS DE ESTA PERSONA:"<<endl;
         contadorTicketsVal = 0;
         for(int posTicketsBin = 0; posTicketsBin<numBin; posTicketsBin++){
             if (rutPersonaUnica == string(datosBinario[posTicketsBin].rut_funcionario)){
-                //cout<<datosBinario[posTicketsBin].rut_funcionario<<endl;
-                //cout<<datosBinario[posTicketsBin].day_of_month<<endl;
+                cout<<datosBinario[posTicketsBin].rut_funcionario<<endl;
+                cout<<datosBinario[posTicketsBin].day_of_month<<endl;
                 tiempoTicket = string(datosBinario[posTicketsBin].time);
-                //cout<<tiempoTicket<<endl;
+                cout<<tiempoTicket<<endl;
                 horaTicket = stoi(tiempoTicket.substr(0,2));
                 minTicket = stoi(tiempoTicket.substr(3,5));
-                //cout<<horaTicket<<endl;
-                //cout<<minTicket<<endl;
+                cout<<horaTicket<<endl;
+                cout<<minTicket<<endl;
                 for (int posServ = 0; posServ<numTxt; posServ++){
-                    //cout<<datosServicios[posServ].nombreServicio<<endl;
+                    cout<<datosServicios[posServ].nombreServicio<<endl;
                     tiempoInicioServ = datosServicios[posServ].hora1;
                     tiempoFinServ = datosServicios[posServ].hora2;
 
                     horaInicioServ = stoi(tiempoInicioServ.substr(0,2));
-                    //cout<<"HORA INICIO: "<<horaInicioServ<<endl;
+                    cout<<"HORA INICIO: "<<horaInicioServ<<endl;
                     minInicioServ = stoi(tiempoInicioServ.substr(3,5));
-                    //cout<<"MIN INICIO: "<<minInicioServ<<endl;
+                    cout<<"MIN INICIO: "<<minInicioServ<<endl;
 
                     horaFinServ = stoi(tiempoFinServ.substr(0,2));
-                    //cout<<"HORA FIN: "<<horaFinServ<<endl;
+                    cout<<"HORA FIN: "<<horaFinServ<<endl;
                     minFinServ = stoi(tiempoFinServ.substr(3,5));
-                    //cout<<"MIN FIN: "<<minFinServ<<endl;
+                    cout<<"MIN FIN: "<<minFinServ<<endl;
 
                     if (horaInicioServ > horaFinServ){
-                        //cout<<"servicio que pasa la medianoche"<<endl;
+                        cout<<"servicio que pasa la medianoche"<<endl;
                         if(verificarValHora(horaTicket, minTicket, horaInicioServ, minInicioServ, horaFinServ, minFinServ)){
-                            //cout<<"**VALIDO**"<<endl;
+                            cout<<"**VALIDO*-----------------------------------------------------*"<<endl;
                             contadorTicketsVal++;
                             break;
                         }
                     }
                     else if (horaInicioServ < horaFinServ){
-                        //cout<<"servicio normal"<<endl;
+                        cout<<"servicio normal"<<endl;
                         if (verificarValHora(horaTicket, minTicket, horaInicioServ, minInicioServ, horaFinServ, minFinServ)){
-                            //cout<<"**VALIDO**"<<endl;
+                            cout<<"**VALIDO*----------------------------------------------------*"<<endl;
                             contadorTicketsVal++;
                             break;
                         }
@@ -378,10 +381,10 @@ void ticketsValidos (persona* personasUnicas, Ticket* datosBinario, datos* datos
         minFinServ = stoi(tiempoFinServ.substr(3,5));
         cout<<"MIN FIN: "<<minFinServ<<endl;
             
-        limMensual = datosServicios[posServ].ticketMensual;
+
         limDiario = datosServicios[posServ].ticketDiario;
         for (int posPersonas = 0; posPersonas < cantidadPersonas; posPersonas++){
-            contLimMens = 0;
+
             cout<<personasUnicas[posPersonas].rut<<endl;
             contInval = 0;
             for (int dia = 1; dia<=31;dia++){
@@ -399,18 +402,83 @@ void ticketsValidos (persona* personasUnicas, Ticket* datosBinario, datos* datos
                         minTicket = stoi(tiempoTicket.substr(3,5));
                         if (horaInicioServ > horaFinServ){
                             if(verificarValHora(horaTicket, minTicket, horaInicioServ, minInicioServ, horaFinServ, minFinServ)){
+                                cout<<contLimDiario<<endl;
+
                                 contLimDiario++;
-                                contLimMens++;
-                                if ((contLimDiario > limDiario) || (contLimMens > limMensual)){
+
+                                if (contLimDiario > limDiario){
+                                    cout<<"INVALIDOINVALIDOINVALIDOINVALIDOINVALIDOINVALIDOINVALIDOINVALIDO"<<endl;
                                     contInval++;
                                 }
                             }
                         }
                         else if (horaInicioServ < horaFinServ){
                             if(verificarValHora(horaTicket, minTicket, horaInicioServ, minInicioServ, horaFinServ, minFinServ)){
+                                cout<<contLimDiario<<endl;
+
                                 contLimDiario++;
+
+                                if (contLimDiario > limDiario){
+                                    cout<<"INVALIDOINVALIDOINVALIDOINVALIDOINVALIDOINVALIDOINVALIDOINVALIDO"<<endl;
+                                    contInval++;
+                                }
+                            }
+                        }
+                    }
+                  }
+            }
+
+    for (int posServ = 0; posServ<numTxt; posServ++){
+        cout<<"------------------"<<datosServicios[posServ].nombreServicio<<"-----------------"<<endl;
+
+        tiempoInicioServ = datosServicios[posServ].hora1;
+        tiempoFinServ = datosServicios[posServ].hora2;
+            
+        horaInicioServ = stoi(tiempoInicioServ.substr(0,2));
+        cout<<"HORA INICIO: "<<horaInicioServ<<endl;
+        minInicioServ = stoi(tiempoInicioServ.substr(3,5));
+        cout<<"MIN INICIO: "<<minInicioServ<<endl;
+
+        horaFinServ = stoi(tiempoFinServ.substr(0,2));
+        cout<<"HORA FIN: "<<horaFinServ<<endl;
+        minFinServ = stoi(tiempoFinServ.substr(3,5));
+        cout<<"MIN FIN: "<<minFinServ<<endl;
+            
+        limMensual = datosServicios[posServ].ticketMensual;
+        for (int posPersonas = 0; posPersonas < cantidadPersonas; posPersonas++){
+            contLimMens = 0;
+            cout<<personasUnicas[posPersonas].rut<<endl;
+            contInval = 0;
+            for (int dia = 1; dia<=31;dia++){
+                cout<<"dia numero "<<dia<<" del MES"<<endl;
+                for (int posTicketsBin = 0; posTicketsBin < numBin; posTicketsBin++){
+                    //cout<<datosBinario[posTicketsBin].rut_funcionario<<endl;
+                    //cout<<"dia del TICKET: "<<datosBinario[posTicketsBin].day_of_month<<endl;
+                    if (personasUnicas[posPersonas].rut == datosBinario[posTicketsBin].rut_funcionario && dia == datosBinario[posTicketsBin].day_of_month){
+                        tiempoTicket = datosBinario[posTicketsBin].time;
+                        cout<<"**RUT DE LA PERSONA:**"<<personasUnicas[posPersonas].rut<<endl;
+                        cout<<"**RUT DEL TICKET:**"<<datosBinario[posTicketsBin].rut_funcionario<<endl;
+                        cout<<"**TIEMPO DEL TICKET:**"<<tiempoTicket<<endl;
+                        horaTicket = stoi(tiempoTicket.substr(0,2));
+                        minTicket = stoi(tiempoTicket.substr(3,5));
+                        if (horaInicioServ > horaFinServ){
+                            if(verificarValHora(horaTicket, minTicket, horaInicioServ, minInicioServ, horaFinServ, minFinServ)){
+                                cout<<contLimDiario<<endl;
+                                cout<<contLimMens<<endl;
                                 contLimMens++;
-                                if ((contLimDiario > limDiario) || (contLimMens > limMensual)){
+                                if (contLimMens > limMensual){
+                                    cout<<"INVALIDOINVALIDOINVALIDOINVALIDOINVALIDOINVALIDOINVALIDOINVALIDO"<<endl;
+                                    contInval++;
+                                }
+                            }
+                        }
+                        else if (horaInicioServ < horaFinServ){
+                            if(verificarValHora(horaTicket, minTicket, horaInicioServ, minInicioServ, horaFinServ, minFinServ)){
+                                cout<<contLimDiario<<endl;
+                                cout<<contLimMens<<endl;
+                                contLimMens++;
+                                if (contLimMens > limMensual){
+                                    cout<<"INVALIDOINVALIDOINVALIDOINVALIDOINVALIDOINVALIDOINVALIDOINVALIDO"<<endl;
                                     contInval++;
                                 }
                             }
@@ -431,7 +499,7 @@ void ticketsValidos (persona* personasUnicas, Ticket* datosBinario, datos* datos
 */
     cout<<"----FIN FUNCION TICKETS VALIDOS----"<<endl;
 
-}
+} } }
 
 int main(){
     int numBin,numTxt= 0;
