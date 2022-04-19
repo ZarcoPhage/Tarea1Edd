@@ -310,7 +310,7 @@ bool verificarValHora(int horaTicket, int minTicket, int horaInicioServ, int min
 *****/
 void ticketsValidos (persona* personasUnicas, Ticket* datosBinario, datos* datosServicios, int cantidadPersonas, int numBin, int numTxt){
     //cout<<"----FUNCION TICKETS VALIDOS----"<<endl;
-    int horaTicket, minTicket, horaInicioServ, minInicioServ, horaFinServ, minFinServ, contadorTicketsVal, contLimMens, limMensual, contLimDiario, limDiario, contInval;
+    int horaTicket, minTicket, horaInicioServ, minInicioServ, horaFinServ, minFinServ, contadorTicketsVal, contLimMens, limMensual, contLimDiario, limDiario, contInval, tmpHoraIn, tmpHoraFin, tmpMinIn, tmpMinFin;
     string rutPersonaUnica, tiempoTicket, tiempoInicioServ, tiempoFinServ;
     for(int posPers = 0; posPers < cantidadPersonas; posPers++){
         //cout<<"persona unica numero "<<posPers+1<<": "<<personasUnicas[posPers].rut<<endl;
@@ -343,9 +343,16 @@ void ticketsValidos (persona* personasUnicas, Ticket* datosBinario, datos* datos
                     //cout<<"MIN FIN: "<<minFinServ<<endl;
 
                     if (horaInicioServ > horaFinServ){
+                        tmpHoraIn = 0;
+                        tmpMinIn = 0;
+                        tmpHoraFin = 0;
+                        tmpMinFin = 0;
                         //cout<<"servicio que pasa la medianoche"<<endl;
-                        if(verificarValHora(horaTicket, minTicket, horaInicioServ, minInicioServ, horaFinServ, minFinServ)){
+                        if(verificarValHora(horaTicket, minTicket, tmpHoraIn, tmpMinIn, horaFinServ, minFinServ)){
                             //cout<<"**VALIDO*-----------------------------------------------------*"<<endl;
+                            contadorTicketsVal++;
+                            break;
+                        }else if(verificarValHora(horaTicket, minTicket, horaInicioServ, minInicioServ, tmpHoraFin, tmpMinFin)){
                             contadorTicketsVal++;
                             break;
                         }
@@ -401,13 +408,22 @@ void ticketsValidos (persona* personasUnicas, Ticket* datosBinario, datos* datos
                         horaTicket = stoi(tiempoTicket.substr(0,2));
                         minTicket = stoi(tiempoTicket.substr(3,5));
                         if (horaInicioServ > horaFinServ){
-                            if(verificarValHora(horaTicket, minTicket, horaInicioServ, minInicioServ, horaFinServ, minFinServ)){
+                            tmpHoraIn= 0;
+                            tmpHoraFin= 0;
+                            tmpMinIn= 0;
+                            tmpMinFin= 0;
+                            if(verificarValHora(horaTicket, minTicket, tmpHoraIn, tmpMinIn, horaFinServ, minFinServ)){
                                 //cout<<contLimDiario<<endl;
 
                                 contLimDiario++;
 
                                 if (contLimDiario > limDiario){
                                     //cout<<"INVALIDOINVALIDOINVALIDOINVALIDOINVALIDOINVALIDOINVALIDOINVALIDO"<<endl;
+                                    contInval++;
+                                }
+                            }else if(verificarValHora(horaTicket,minTicket,horaInicioServ,minInicioServ,tmpHoraFin,tmpMinFin)){
+                                contLimDiario++;
+                                if (contLimDiario > limDiario){
                                     contInval++;
                                 }
                             }
@@ -462,7 +478,11 @@ void ticketsValidos (persona* personasUnicas, Ticket* datosBinario, datos* datos
                         horaTicket = stoi(tiempoTicket.substr(0,2));
                         minTicket = stoi(tiempoTicket.substr(3,5));
                         if (horaInicioServ > horaFinServ){
-                            if(verificarValHora(horaTicket, minTicket, horaInicioServ, minInicioServ, horaFinServ, minFinServ)){
+                            tmpHoraIn= 0;
+                            tmpMinIn= 0;
+                            tmpHoraFin= 0;
+                            tmpMinFin= 0;
+                            if(verificarValHora(horaTicket, minTicket, tmpHoraIn, tmpMinIn, horaFinServ, minFinServ)){
                                 //cout<<contLimDiario<<endl;
                                 //cout<<contLimMens<<endl;
                                 contLimMens++;
@@ -470,7 +490,13 @@ void ticketsValidos (persona* personasUnicas, Ticket* datosBinario, datos* datos
                                     //cout<<"INVALIDOINVALIDOINVALIDOINVALIDOINVALIDOINVALIDOINVALIDOINVALIDO"<<endl;
                                     contInval++;
                                 }
+                            }else if(verificarValHora(horaTicket, minTicket, horaInicioServ, minInicioServ, tmpHoraFin, tmpMinFin)){
+                                contLimMens++;
+                                if (contLimMens>limMensual){
+                                    contInval++;
+                                }
                             }
+
                         }
                         else if (horaInicioServ < horaFinServ){
                             if(verificarValHora(horaTicket, minTicket, horaInicioServ, minInicioServ, horaFinServ, minFinServ)){
